@@ -458,8 +458,9 @@ class TIA():
         """
         f = numpy.logspace(1,10,int(1e6))
         zm = numpy.abs( self.ZM(f) )
+        z_3db = zm[0]/numpy.sqrt(2.0)
         try:
-            ind = min( min(numpy.where( zm < zm[0]/numpy.sqrt(2.0)) ) )
+            ind = min( min(numpy.where( zm < z_3db) ) )
             #print zm[0], zm[ind], zm[ind]/zm[0]
             f_3dB= f[ind]
             return f_3dB
