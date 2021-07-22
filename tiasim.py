@@ -411,7 +411,7 @@ class TIA():
             The -3 dB bandwidth of the TIA
             Found by searching for the frequency where ZM(f) = ZM(0)/sqrt(2) 
         """
-        f = numpy.logspace(1,10,1e6)
+        f = numpy.logspace(1,10,int(1e6))
         zm = numpy.abs( self.ZM(f) )
         try:
             ind = min( min(numpy.where( zm < zm[0]/numpy.sqrt(2.0)) ) )
