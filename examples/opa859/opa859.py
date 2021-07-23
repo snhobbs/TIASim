@@ -40,7 +40,7 @@ def opamp_v_noise(f, a0, a1):
 def opamp_i_noise(f, a0, a1):
     # noise model, wide-band flat noise + 1/f noise
     return a0*numpy.sqrt(f)+a1*f
-    
+
 # photodiode transimpedance model
 q=1.609e-19;    # electron charge
 kB=1.38e-23;    # Boltzmann constant
@@ -51,8 +51,8 @@ T=273+25;       # Temperature
 
 # open loop gain of amp
 #tmp=load('opa657_absA.dat');
-tmp=numpy.genfromtxt('opa859/opa859_gain.txt',delimiter=",")
-#print tmp
+tmp=numpy.genfromtxt('opa859_gain.txt',delimiter=",")
+#print(tmp)
 f=numpy.array(tmp[:,0])*1e3 # to Hz
 A=numpy.array(tmp[:,1])
 A = 10.0**(A/20.0) # from dB to V/V gain
@@ -69,13 +69,13 @@ plt.xlabel('Frequency (Hz)')
 #x0 = [10**(95.0/20.0), 5e4];
 
 #x, xcov = curve_fit(opamp_gain,f[:-6], A[:-6], p0=x0);
-#print "fit AOL gain/f ",x
-# 
+#print("fit AOL gain/f ",x)
+#
 
 #%pa = polyfit(f,10.^(A./20),4);
 #hold on
-#print opamp_gain(f,x[0],x[1])
-opa = tiasim.OPA859()
+#print(opamp_gain(f,x[0],x[1]))
+opa = tiasim.opamps.OPA859()
 gbwp = opa.GBWP
 
 
@@ -103,11 +103,11 @@ plt.legend()
 
 
 # voltage noise of amp
-tmp=numpy.genfromtxt('opa859/opa859_vn.txt', delimiter=',');
+tmp=numpy.genfromtxt('opa859_vn.txt', delimiter=',');
 e_F=tmp[:,0] # Hz
 e_N=tmp[:,1]*1e-9  # V / sqrt(Hz), input file in nV/sqrt(Hz)
 #e2_N=e_N**2;  # V^2 / Hz
-print "voltage noise ", e_N
+print("voltage noise ", e_N)
 #e2_N = e2_N[-1] # pick last value
 plt.subplot(2,2,3)
 plt.title('Amp voltage noise')
@@ -118,7 +118,7 @@ noise0 = [0.8e-9, 4e-8];
 
 vnoise, vnoisecov = curve_fit(opamp_v_noise,e_F, e_N, p0=noise0);
 #pn = numpy.polyfit(e_F,e_N,3)
-print "fit vnoise: ", vnoise
+print("fit vnoise: ", vnoise)
 #e_model = opamp_v_noise(f_int, vnoise[0], vnoise[1]) # Vspline(f_int)
 #plt.loglog(f_int,e_model,'--',label='model')
 #plt.loglog(f_int,opamp_v_noise(f_int, 3.3e-9, 93e-8),'--',label='model2')
@@ -133,11 +133,11 @@ plt.ylabel('V/sqrt(Hz)')
 #plt.show()
 
 # current noise of amp
-tmp=numpy.genfromtxt('opa859/opa859_in.txt', delimiter=',');
+tmp=numpy.genfromtxt('opa859_in.txt', delimiter=',');
 i_F=tmp[:,0] # Hz
 i_N=tmp[:,1]*1e-15  # A / sqrt(Hz)
 #e2_N=e_N**2;  # V^2 / Hz
-print "voltage noise ", i_N
+print("voltage noise ", i_N)
 #e2_N = e2_N[-1] # pick last value
 plt.subplot(2,2,4)
 plt.title('Amp current noise')
@@ -148,7 +148,7 @@ noise0 = [1e-17, 3e-20];
 
 inoise, inoisecov = curve_fit(opamp_i_noise,i_F, i_N, p0=noise0);
 #pn = numpy.polyfit(e_F,e_N,3)
-print "fit inoise: ", inoise
+print("fit inoise: ", inoise)
 i_model = opamp_i_noise(f_int, inoise[0], inoise[1]) # Vspline(f_int)
 pi = numpy.polyfit(i_F, i_N, 4)
 i_model2 = opamp_i_noise(f_int, 1e-17, 3e-20)  #numpy.polyval(pi, f_int)
