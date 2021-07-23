@@ -26,37 +26,37 @@ import tiasim
 
 
 # read gain
-d = numpy.genfromtxt('opa818/bw_100k.txt', comments='#', delimiter=',')
+d = numpy.genfromtxt('bw_100k.txt', comments='#', delimiter=',')
 cd_100k = [x[0] for x in d] # pF
 bw_100k = [x[1] for x in d] # MHz
-d = numpy.genfromtxt('opa818/bw_500k.txt', comments='#', delimiter=',')
+d = numpy.genfromtxt('bw_500k.txt', comments='#', delimiter=',')
 cd_500k = [x[0] for x in d] # pF
 bw_500k = [x[1] for x in d] # MHz
 
-d = numpy.genfromtxt('opa818/bw_50k.txt', comments='#', delimiter=',')
+d = numpy.genfromtxt('bw_50k.txt', comments='#', delimiter=',')
 cd_50k = [x[0] for x in d] # pF
 bw_50k = [x[1] for x in d] # MHz
 
-d = numpy.genfromtxt('opa818/bw_20k.txt', comments='#', delimiter=',')
+d = numpy.genfromtxt('bw_20k.txt', comments='#', delimiter=',')
 cd_20k = [x[0] for x in d] # pF
 bw_20k = [x[1] for x in d] # MHz
 
 
 """
 # read phase
-d = numpy.genfromtxt('opa818/opa818_AOL_phase.txt', comments='#', delimiter=',')
+d = numpy.genfromtxt('opa818_AOL_phase.txt', comments='#', delimiter=',')
 fp = [x[0]*1e6 for x in d]
 phase = [x[1] for x in d]
 print "Phase: ", fp, phase
 
 # read vnoise
-d = numpy.genfromtxt('opa818/opa818_vn.txt', comments='#', delimiter=',')
+d = numpy.genfromtxt('opa818_vn.txt', comments='#', delimiter=',')
 fn = [x[0]*1e6 for x in d]
 vn = [x[1]*1e-9 for x in d] # from nV/sqrt(Hz)
 print "Vnoise: ", fn, vn
 
 # read inoise
-d = numpy.genfromtxt('opa818/opa818_in.txt', comments='#', delimiter=',')
+d = numpy.genfromtxt('opa818_in.txt', comments='#', delimiter=',')
 fin = [x[0]*1e6 for x in d]
 inoise = [x[1]*1e-15 for x in d] # from fA/sqrt(Hz)
 print "Inoise: ", fin, inoise
@@ -76,9 +76,9 @@ def TIA_BW(R_F):
     C_F=None
     C_parasitic = 0.005e-12
     for c in cd:
-        diode = tiasim.S5971()
+        diode = tiasim.photodiodes.S5971()
         diode.capacitance = c*1e-12
-        opamp = tiasim.OPA818()
+        opamp = tiasim.opamps.OPA818()
         # note sqrt(2) factor here in addition to formula from tiasim.py
         C_optimal = numpy.sqrt(2)*numpy.sqrt( (diode.capacitance+opamp.input_capacitance()) / (2.0*numpy.pi*opamp.GBWP*R_F))
         tia = tiasim.TIA( opamp, diode, R_F  , C_optimal, C_parasitic)

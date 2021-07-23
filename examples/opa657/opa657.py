@@ -21,25 +21,25 @@ import matplotlib.pyplot as plt
 
 import tiasim
 
-opa = tiasim.OPA657()
+opa = tiasim.opamps.OPA657()
 gbwp = opa.GBWP
 
 
 # read gain
-d = numpy.genfromtxt('opa657/opa657_aol.txt', comments='#', delimiter=',')
+d = numpy.genfromtxt('opa657_aol.txt', comments='#', delimiter=',')
 f = [x[0] for x in d]
 aol = [pow(10,x[1]/20.0) for x in d]
 
 # read phase
-d = numpy.genfromtxt('opa657/opa657_phase.txt', comments='#', delimiter=',')
+d = numpy.genfromtxt('opa657_phase.txt', comments='#', delimiter=',')
 fp = [x[0] for x in d]
 phase = [x[1] for x in d]
 
 # read vnoise
-d = numpy.genfromtxt('opa657/opa657_v_noise.txt', comments='#', delimiter=' ')
+d = numpy.genfromtxt('opa657_v_noise.txt', comments='#', delimiter=' ')
 fn = [x[0] for x in d]
 vn = [x[1] for x in d]
-print fn, vn
+print(fn, vn)
 
 plt.figure(figsize=(12,10))
 plt.subplot(2,2,1)
