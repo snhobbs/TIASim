@@ -21,31 +21,31 @@ import matplotlib.pyplot as plt
 
 import tiasim
 
-opa = tiasim.OPA847()
+opa = tiasim.opamps.OPA847()
 gbwp = opa.GBWP
 
 
 # read gain
-d = numpy.genfromtxt('opa847/opa847_gain.txt', comments='#',delimiter=',')  
+d = numpy.genfromtxt('opa847_gain.txt', comments='#',delimiter=',')
 f = [x[0] for x in d]
 aol = [pow(10,x[1]/20.0) for x in d]
 
 # read phase
-d = numpy.genfromtxt('opa847/opa847_phase.txt', comments='#', delimiter='\t')
+d = numpy.genfromtxt('opa847_phase.txt', comments='#', delimiter='\t')
 fp = [x[0] for x in d]
 phase = [x[1] for x in d]
 
 # read vnoise
-d = numpy.genfromtxt('opa847/opa847_v_noise.txt', comments='#', delimiter='\t')
+d = numpy.genfromtxt('opa847_v_noise.txt', comments='#', delimiter='\t')
 fn = [x[0] for x in d]
 vn = [x[1]*1e-9 for x in d]
-print fn, vn
+print(fn, vn)
 
 # read inoise
-d = numpy.genfromtxt('opa847/opa847_i_noise.txt', comments='#', delimiter='\t')
+d = numpy.genfromtxt('opa847_i_noise.txt', comments='#', delimiter='\t')
 fi = [x[0] for x in d]
 vi = [x[1]*1e-12 for x in d]
-print fi, vi
+print(fi, vi)
 
 
 plt.figure(figsize=(12,10))
@@ -82,7 +82,7 @@ plt.legend()
 plt.subplot(2,2,3)
 plt.title('OPA847 voltage noise')
 plt.loglog(fn, vn,'o',label='Datasheet')
-plt.loglog( fm,  opa.voltage_noise(fm) ,'-',label='TIASim OPA847 model')
+plt.loglog( fm,  numpy.array([opa.voltage_noise(fm)]*len(fm)) ,'-',label='TIASim OPA847 model')
 plt.grid()
 plt.xlabel('Frequency / Hz')
 plt.ylabel('Voltage noise / V/sqrt(Hz)')
@@ -92,7 +92,7 @@ plt.legend()
 plt.subplot(2,2,4)
 plt.title('OPA847 current noise')
 plt.loglog(fi, vi,'o',label='Datasheet')
-plt.loglog( fm,  opa.current_noise(fm) ,'-',label='TIASim OPA847 model')
+plt.loglog( fm,  numpy.array([opa.current_noise(fm)]*len(fm)) ,'-',label='TIASim OPA847 model')
 plt.grid()
 plt.xlabel('Frequency / Hz')
 plt.ylabel('Current noise / A/sqrt(Hz)')
