@@ -8,8 +8,9 @@ class S5971(Photodiode):
         https://www.hamamatsu.com/resources/pdf/ssd/s5971_etc_kpin1025e.pdf
     """
     def __init__(self):
-        self.capacitance = 4e-12 # at VR = 5 V
-        self.responsivity = 0.4 # A/W
+        capacitance = 4e-12 # at VR = 5 V
+        responsivity = 0.4 # A/W
+        super().__init__(capacitance, responsivity)
 
 class S5973(Photodiode):
     """
@@ -18,8 +19,9 @@ class S5973(Photodiode):
         https://www.hamamatsu.com/resources/pdf/ssd/s5971_etc_kpin1025e.pdf
     """
     def __init__(self):
-        self.capacitance = 1.6e-12  # capacitance at Vr = 3.3V
-        self.responsivity = 0.4     # A/W
+        capacitance = 1.6e-12  # capacitance at Vr = 3.3V
+        responsivity = 0.4     # A/W
+        super().__init__(capacitance, responsivity)
 
 class S905501(Photodiode):
     """
@@ -28,8 +30,9 @@ class S905501(Photodiode):
         https://www.hamamatsu.com/resources/pdf/ssd/s9055_series_kpin1065e.pdf
     """
     def __init__(self):
-        self.capacitance = 0.5e-12  # capacitance at Vr = 3.3V
-        self.responsivity = 0.25     # A/W
+        capacitance = 0.5e-12  # capacitance at Vr = 3.3V
+        responsivity = 0.25     # A/W
+        super().__init__(capacitance, responsivity)
 
 class FDS015(Photodiode):
     """
@@ -41,8 +44,9 @@ class FDS015(Photodiode):
         TO-46 package
     """
     def __init__(self):
-        self.capacitance = 0.65e-12
-        self.responsivity = 0.4
+        capacitance = 0.65e-12
+        responsivity = 0.4
+        super().__init__(capacitance, responsivity)
 
 class FGA01FC(Photodiode):
     """
@@ -54,7 +58,8 @@ class FGA01FC(Photodiode):
         TO-46 package
     """
     def __init__(self):
-        self.capacitance = 2.0e-12
-        self.responsivity = 1.0
+        capacitance = 2.0e-12
+        responsivity = 1.0
+        super().__init__(capacitance, responsivity)
 
 

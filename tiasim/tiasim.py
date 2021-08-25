@@ -19,10 +19,27 @@
 
 import numpy
 import abc
+from scipy import constants
 
-q=1.609e-19;    # electron charge
-kB=1.38e-23;    # Boltzmann constant
-T=273+25;       # Temperature
+room_temperature=constants.convert_temperature(25, 'celsius', 'kelvin')
+
+def calc_feedback_transimpedance(frequency, r_f, c_f):
+    """
+    feedback impedance ZF = R_F || C_F
+    """
+    w = 2.0*numpy.pi*frequency
+    return r_f / ( 1j*r_f*c_f*w + 1.0 );
+
+def calc_closed_loop_transimpedance(f, gain_f, z_f, c_tot):
+    """
+    closed loop transimpedance, Hobbs (18.15)
+    f: frequency
+    gain_f: gain at f
+    z_f: total feedback impedance at f
+    c_tot: total source capacitance (diode capacitance + input capacitance)
+    """
+    w = 2.0*numpy.pi*f
+    return gain_f*z_f / ( 1.0 + gain_f + 1j*w*z_f*c_tot);
 
 '''
 Opamp is an abstract base class. Each of the members with the
@@ -64,28 +81,12 @@ class Opamp(metaclass=abc.ABCMeta):
     def input_capacitance(self):
         pass
 
-class IdealOpamp(Opamp):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
 
-    def gain(self,f):
-        """ gain """
-        return  self.AOL_gain / (1.0+ 1j * f/self.AOL_bw )
+class Photodiode:
+    def __init__(self, capacitance, responsivity):
+        self.capacitance = capacitance
+        self.responsivity = responsivity # A/W
 
-    def voltage_noise(self,f):
-        """ amplifier input voltage noise in V/sqrt(Hz) """
-        return .0001e-9
-
-    def current_noise(self,f):
-        """ amplifier input current noise in A/sqrt(Hz) """
-        return 0.1e-15
-
-    def input_capacitance(self):
-        cm = 0.001e-12
-        diff= 0.001e-12
-        return cm+diff
-
-class Photodiode():
     def current(self, P):
         """ photocurrent (A) produced by input optical power P """
         return self.responsivity*P
@@ -112,8 +113,7 @@ class TIA():
         """
             feedback impedance ZF = R_F || C_F
         """
-        w = 2.0*numpy.pi*f
-        return self.R_F / ( 1j*self.R_F*self.C_F*w + 1.0 );
+        return calc_feedback_transimpedance(f, self.R_F, self.C_F)
 
     def ZM(self,f):
         """
@@ -122,7 +122,7 @@ class TIA():
         A = self.opamp.gain(f)
         w = 2.0*numpy.pi*f
 
-        return A*self.ZF(f) / ( 1.0 + A + 1j*w*self.ZF(f)*(self.C_tot) );
+        return calc_closed_loop_transimpedance(f, gain_f=A, z_f=self.ZF(f), c_tot=self.C_tot)
 
     def amp_current_noise(self, f):
         """
@@ -140,12 +140,12 @@ class TIA():
         Avcl = A / (1.0+A/(1.0+1j*w*self.ZF(f)*(self.C_tot)))  # closed loop voltage gain
         return self.opamp.voltage_noise(f) * numpy.abs(Avcl)
 
-    def johnson_noise(self, f):
+    def johnson_noise(self, f, T=room_temperature):
         """
             output-referred voltage noise due to R_F, in V/sqrt(Hz)
             Computed as johnson current noise thru transimpedance
         """
-        return numpy.sqrt( 4*kB*T/self.R_F ) * numpy.abs(self.ZM(f))
+        return numpy.sqrt( 4*constants.k*T/self.R_F ) * numpy.abs(self.ZM(f))
 
     def shot_noise(self, P, f):
         """
@@ -155,7 +155,7 @@ class TIA():
             For the total TIA noise at power P use bright_noise()
         """
         I_PD = self.diode.current(P)
-        return numpy.sqrt(2.0*q*I_PD) * numpy.abs(self.ZM(f))
+        return numpy.sqrt(2.0*constants.elementary_charge*I_PD) * numpy.abs(self.ZM(f))
 
     def dark_noise(self, f):
         """

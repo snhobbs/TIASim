@@ -1,7 +1,47 @@
 import numpy
 from tiasim import Opamp
 
-class OPA855(Opamp):
+class SinglePoleOpAmp(Opamp):
+    def gain(self, f):
+        """ gain """
+        return  self.AOL_gain / (1.0+ 1j * f/self.AOL_bw )
+
+
+class TwoPoleAmplifier(Opamp):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        try:
+            self._AOL_pole = kwargs.pop("AOL_pole")
+        except KeyError:
+            self._AOL_pole = args[-1]
+
+    @property
+    def AOL_pole(self):
+        return self._AOL_pole
+
+    def gain(self, f):
+        """ gain """
+        return  self.AOL_gain / (1.0+ 1j * f/self.AOL_bw ) * (1.0/ (1.0+ 1j * f/self.AOL_pole ) )
+
+class IdealOpamp(SinglePoleOpAmp):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+    def voltage_noise(self,f):
+        """ amplifier input voltage noise in V/sqrt(Hz) """
+        return 1e-20
+
+    def current_noise(self,f):
+        """ amplifier input current noise in A/sqrt(Hz) """
+        return 1e-20
+
+    def input_capacitance(self):
+        cm = 1e-20
+        diff= 1e-20
+        return cm+diff
+
+class OPA855(SinglePoleOpAmp):
     """
          8-GHz Gain Bandwidth Product, Gain of 7-V/V Stable, Bipolar Input Amplifier
          https://www.ti.com/lit/ds/symlink/opa855.pdf
@@ -11,11 +51,6 @@ class OPA855(Opamp):
         AOL_bw = 941445.81175752
         GBWP = 8e9
         super().__init__(AOL_gain, AOL_bw, GBWP)
-
-    def gain(self,f):
-        """ gain """
-        #return numpy.abs( self.AOL_gain / (1.0+ 1j * f/self.AOL_bw ) )
-        return  self.AOL_gain / (1.0+ 1j * f/self.AOL_bw )
 
     def voltage_noise(self,f):
         """ amplifier input voltage noise in V/sqrt(Hz) """
@@ -37,7 +72,7 @@ class OPA855(Opamp):
         return cm+diff
 
 
-class OPA858(Opamp):
+class OPA858(SinglePoleOpAmp):
     """
         5.5 GHz Gain Bandwidth Product, Decompensated Transimpedance Amplifier with FET Input
         https://www.ti.com/lit/ds/symlink/opa858.pdf
@@ -47,10 +82,6 @@ class OPA858(Opamp):
         AOL_bw = 1091348.67318369
         GBWP = 5.5e9
         super().__init__(AOL_gain, AOL_bw, GBWP)
-
-    def gain(self,f):
-        """ gain """
-        return  self.AOL_gain / (1.0+ 1j * f/self.AOL_bw )
 
     def voltage_noise(self,f):
         """ amplifier input voltage noise in V/sqrt(Hz) """
@@ -74,7 +105,7 @@ class OPA858(Opamp):
         return cm+diff
 
 
-class OPA859(Opamp):
+class OPA859(SinglePoleOpAmp):
     """
         1.8 GHz Unity-Gain Bandwidth, 3.3-nV/sqrt(Hz), FET Input Amplifier
         https://www.ti.com/product/OPA859
@@ -84,10 +115,6 @@ class OPA859(Opamp):
         AOL_bw = 519231.04490493
         GBWP = 1.8e9
         super().__init__(AOL_gain, AOL_bw, GBWP)
-
-    def gain(self,f):
-        """ gain """
-        return  self.AOL_gain / (1.0+ 1j * f/self.AOL_bw )
 
     def voltage_noise(self,f):
         """ amplifier input voltage noise in V/sqrt(Hz) """
@@ -108,7 +135,7 @@ class OPA859(Opamp):
         diff= 0.2e-12
         return cm+diff
 
-class OPA657(Opamp):
+class OPA657(TwoPoleAmplifier):
     """
         1.6-GHz, Low-Noise, FET-Input Operational Amplifier
         https://www.ti.com/lit/ds/symlink/opa657.pdf
@@ -120,13 +147,9 @@ class OPA657(Opamp):
     def __init__(self):
         AOL_gain = pow(10,75.0/20.0)
         AOL_bw = 10*45626.55598007
-        self.AOL_pole = 300e6
+        AOL_pole = 300e6
         GBWP = 1.6e9
-        super().__init__(AOL_gain, AOL_bw, GBWP)
-
-    def gain(self,f):
-        """ gain """
-        return  self.AOL_gain / (1.0+ 1j * f/self.AOL_bw ) * (1.0/ (1.0+ 1j * f/self.AOL_pole ) )
+        super().__init__(AOL_gain, AOL_bw, GBWP, AOL_pole)
 
     def voltage_noise(self,f):
         """ amplifier input voltage noise in V/sqrt(Hz) """
@@ -144,7 +167,7 @@ class OPA657(Opamp):
         diff= 4.5e-12
         return cm+diff
 
-class OPA818(Opamp):
+class OPA818(TwoPoleAmplifier):
     """
         OPA818 2.7-GHz, High-Voltage, FET-Input, Low Noise, Operational Amplifier
         https://www.ti.com/lit/ds/symlink/opa818.pdf
@@ -153,13 +176,9 @@ class OPA818(Opamp):
     def __init__(self):
         AOL_gain = pow(10,94.3/20.0)
         AOL_bw = 50e3
-        self.AOL_pole = 500e6
+        AOL_pole = 500e6
         GBWP = 2.7e9
-        super().__init__(AOL_gain, AOL_bw, GBWP)
-
-    def gain(self,f):
-        """ gain """
-        return  self.AOL_gain / (1.0+ 1j * f/self.AOL_bw ) * (1.0/ (1.0+ 1j * f/self.AOL_pole ) )
+        super().__init__(AOL_gain, AOL_bw, GBWP, AOL_pole)
 
     def voltage_noise(self,f):
         """ amplifier input voltage noise in V/sqrt(Hz) """
@@ -177,7 +196,7 @@ class OPA818(Opamp):
         diff= 0.5e-12
         return cm+diff
 
-class OPA847(Opamp):
+class OPA847(SinglePoleOpAmp):
     """
         3.8GHz GBWP  Ultra-Low Noise, Voltage-Feedback, Bipolar Input
         stable for gains >=12
@@ -188,10 +207,6 @@ class OPA847(Opamp):
         AOL_bw = 65178.06837912
         GBWP = 3.9e9
         super().__init__(AOL_gain, AOL_bw, GBWP)
-
-    def gain(self,f):
-        """ gain """
-        return  self.AOL_gain / (1.0+ 1j * f/self.AOL_bw )
 
     def voltage_noise(self,f):
         """ amplifier input voltage noise in V/sqrt(Hz) """
