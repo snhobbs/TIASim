@@ -41,6 +41,14 @@ def calc_closed_loop_transimpedance(f, gain_f, z_f, c_tot):
     w = 2.0*numpy.pi*f
     return gain_f*z_f / ( 1.0 + gain_f + 1j*w*z_f*c_tot);
 
+def estimate_bandwidth_from_rise_time(rise_time):
+    '''10-90% rise time step response'''
+    return 0.35/rise_time
+
+def estimate_rise_time_from_bandwidth(bandwidth):
+    '''10-90% rise time step response'''
+    return estimate_bandwidth_from_rise_time(bandwidth)
+
 '''
 Opamp is an abstract base class. Each of the members with the
 @abc.abstractmethod decorator must be defined for each derived type
@@ -88,6 +96,10 @@ class Photodiode:
         self.responsivity = responsivity # A/W
 
     def current(self, P):
+        """ photocurrent (A) produced by input optical power P """
+        return self.calc_current_from_optical_power(P)
+
+    def calc_current_from_optical_power(self, P):
         """ photocurrent (A) produced by input optical power P """
         return self.responsivity*P
 
@@ -187,6 +199,9 @@ class TIA():
         """
         f3db = numpy.sqrt( self.opamp.GBWP /(2*numpy.pi*self.R_F*self.C_tot))
         return f3db
+
+    def noise_bandwidth(self):
+        return self.bandwidth()
 
     def bandwidth(self):
         """
