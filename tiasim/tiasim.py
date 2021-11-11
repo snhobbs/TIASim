@@ -89,6 +89,10 @@ class Photodiode:
 
     def current(self, P):
         """ photocurrent (A) produced by input optical power P """
+        return self.calc_current_from_optical_power(P)
+
+    def calc_current_from_optical_power(self, P):
+        """ photocurrent (A) produced by input optical power P """
         return self.responsivity*P
 
 class TIA():
